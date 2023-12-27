@@ -8,10 +8,10 @@ spring:
     allow-circular-references: true
   datasource:
     druid:
-      driver-class-name: ${tong.datasource.driver-class-name}
-      url: jdbc:mysql://${tong.datasource.host}:${tong.datasource.port}/${tong.datasource.database}?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&useSSL=false&allowPublicKeyRetrieval=true
-      username: ${tong.datasource.username}
-      password: ${tong.datasource.password}
+      driver-class-name: ${dolphin.datasource.driver-class-name}
+      url: jdbc:mysql://${dolphin.datasource.host}:${dolphin.datasource.port}/${dolphin.datasource.database}?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&useSSL=false&allowPublicKeyRetrieval=true
+      username: ${dolphin.datasource.username}
+      password: ${dolphin.datasource.password}
 
 mybatis:
   #mapper配置文件
@@ -29,10 +29,10 @@ logging:
         service: info
         controller: info
 
-tong:
+dolphin:
   jwt:
     # 设置jwt签名加密时使用的秘钥
-    admin-secret-key: itcast
+    admin-secret-key: tong
     # 设置jwt过期时间
     admin-ttl: 7200000
     # 设置前端传递过来的令牌名称
