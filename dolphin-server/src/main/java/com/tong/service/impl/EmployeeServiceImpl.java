@@ -1,20 +1,29 @@
 package com.tong.service.impl;
 
+import cn.hutool.core.bean.BeanUtil;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.sun.xml.internal.bind.v2.TODO;
 import com.tong.constant.MessageConstant;
+import com.tong.constant.PasswordConstant;
 import com.tong.constant.StatusConstant;
+import com.tong.context.BaseContext;
+import com.tong.dto.EmployeeDTO;
 import com.tong.dto.EmployeeLoginDTO;
 import com.tong.entity.Employee;
 import com.tong.exception.AccountLockedException;
 import com.tong.exception.AccountNotFoundException;
 import com.tong.exception.PasswordErrorException;
 import com.tong.mapper.EmployeeMapper;
+import com.tong.result.Result;
 import com.tong.service.EmployeeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 
+import java.time.LocalDateTime;
+
 @Service
-public class EmployeeServiceImpl implements EmployeeService {
+public class EmployeeServiceImpl extends ServiceImpl<EmployeeMapper, Employee> implements EmployeeService {
 
     @Autowired
     private EmployeeMapper employeeMapper;
@@ -53,6 +62,22 @@ public class EmployeeServiceImpl implements EmployeeService {
 
         //3、返回实体对象
         return employee;
+    }
+
+    @Override
+    public void save(EmployeeDTO employeeDTO) {
+        // 对象属性拷贝
+        Employee employee = BeanUtil.copyProperties(employeeDTO, Employee.class);
+        // 补全信息
+        employee.setPassword(DigestUtils.md5DigestAsHex(PasswordConstant.DEFAULT_PASSWORD.getBytes()));
+        employee.setStatus(StatusConstant.ENABLE);
+        employee.setCreateTime(LocalDateTime.now());
+        employee.setUpdateTime(LocalDateTime.now());
+        // 通过ThreadLocal获取当前登录用户id
+        employee.setCreateUser(BaseContext.getCurrentId());
+        employee.setUpdateUser(BaseContext.getCurrentId());
+        // 新增员工
+        save(employee);
     }
 
 }
