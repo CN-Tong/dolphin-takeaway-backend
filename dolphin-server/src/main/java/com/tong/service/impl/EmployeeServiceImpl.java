@@ -1,6 +1,7 @@
 package com.tong.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.sun.xml.internal.bind.v2.TODO;
 import com.tong.constant.MessageConstant;
@@ -9,11 +10,13 @@ import com.tong.constant.StatusConstant;
 import com.tong.context.BaseContext;
 import com.tong.dto.EmployeeDTO;
 import com.tong.dto.EmployeeLoginDTO;
+import com.tong.dto.EmployeePageQueryDTO;
 import com.tong.entity.Employee;
 import com.tong.exception.AccountLockedException;
 import com.tong.exception.AccountNotFoundException;
 import com.tong.exception.PasswordErrorException;
 import com.tong.mapper.EmployeeMapper;
+import com.tong.result.PageResult;
 import com.tong.result.Result;
 import com.tong.service.EmployeeService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 public class EmployeeServiceImpl extends ServiceImpl<EmployeeMapper, Employee> implements EmployeeService {
@@ -78,6 +82,25 @@ public class EmployeeServiceImpl extends ServiceImpl<EmployeeMapper, Employee> i
         employee.setUpdateUser(BaseContext.getCurrentId());
         // 新增员工
         save(employee);
+    }
+
+    @Override
+    public PageResult pageQuery(EmployeePageQueryDTO employeePageQueryDTO) {
+        // 获取分页参数
+        int page = employeePageQueryDTO.getPage();
+        int pageSize = employeePageQueryDTO.getPageSize();
+        // 配置分页参数
+        Page<Employee> employeePage = Page.of(page, pageSize);
+        // 获取前端参数name
+        String name = employeePageQueryDTO.getName();
+        // 分页条件查询
+        Page<Employee> p = lambdaQuery()
+                .like(name != null, Employee::getName, name)
+                .page(employeePage);
+        // 封装PageResult
+        long total = p.getTotal();
+        List<Employee> records = p.getRecords();
+        return new PageResult(total, records);
     }
 
 }
