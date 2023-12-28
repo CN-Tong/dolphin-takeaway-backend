@@ -67,11 +67,11 @@ public class EmployeeServiceImpl extends ServiceImpl<EmployeeMapper, Employee> i
         // 补全信息
         employee.setPassword(DigestUtils.md5DigestAsHex(PasswordConstant.DEFAULT_PASSWORD.getBytes()));
         employee.setStatus(StatusConstant.ENABLE);
-        employee.setCreateTime(LocalDateTime.now());
-        employee.setUpdateTime(LocalDateTime.now());
-        // 通过ThreadLocal获取当前登录用户id
-        employee.setCreateUser(BaseContext.getCurrentId());
-        employee.setUpdateUser(BaseContext.getCurrentId());
+        // employee.setCreateTime(LocalDateTime.now());
+        // employee.setUpdateTime(LocalDateTime.now());
+        // // 通过ThreadLocal获取当前登录用户id
+        // employee.setCreateUser(BaseContext.getCurrentId());
+        // employee.setUpdateUser(BaseContext.getCurrentId());
         // 新增员工
         save(employee);
     }
@@ -104,15 +104,8 @@ public class EmployeeServiceImpl extends ServiceImpl<EmployeeMapper, Employee> i
 
     @Override
     public void update(EmployeeDTO employeeDTO) {
-        update().eq("id", employeeDTO.getId())
-                .set(employeeDTO.getName() != null, "name", employeeDTO.getName())
-                .set(employeeDTO.getUsername() != null, "username", employeeDTO.getUsername())
-                .set(employeeDTO.getSex() != null, "sex", employeeDTO.getSex())
-                .set(employeeDTO.getPhone() != null, "phone", employeeDTO.getPhone())
-                .set(employeeDTO.getIdNumber() != null, "id_number", employeeDTO.getIdNumber())
-                .set("update_time", LocalDateTime.now())
-                .set("update_user", BaseContext.getCurrentId())
-                .update();
+        Employee employee = BeanUtil.copyProperties(employeeDTO, Employee.class);
+        updateById(employee);
     }
 
 }

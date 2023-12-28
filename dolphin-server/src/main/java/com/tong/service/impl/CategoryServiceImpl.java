@@ -30,11 +30,11 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
         Category category = BeanUtil.copyProperties(categoryDTO, Category.class);
         // 补全信息
         category.setStatus(StatusConstant.ENABLE);
-        category.setCreateTime(LocalDateTime.now());
-        category.setUpdateTime(LocalDateTime.now());
-        // 通过ThreadLocal获取当前登录用户id
-        category.setCreateUser(BaseContext.getCurrentId());
-        category.setUpdateUser(BaseContext.getCurrentId());
+        // category.setCreateTime(LocalDateTime.now());
+        // category.setUpdateTime(LocalDateTime.now());
+        // // 通过ThreadLocal获取当前登录用户id
+        // category.setCreateUser(BaseContext.getCurrentId());
+        // category.setUpdateUser(BaseContext.getCurrentId());
         // 新增员工
         save(category);
     }
@@ -69,11 +69,8 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
 
     @Override
     public void update(CategoryDTO categoryDTO) {
-        update().eq("id", categoryDTO.getId())
-                .set(categoryDTO.getName() != null, "name", categoryDTO.getName())
-                .set(categoryDTO.getSort() != null, "sort", categoryDTO.getSort())
-                .set(categoryDTO.getType() != null, "type", categoryDTO.getType())
-                .update();
+        Category category = BeanUtil.copyProperties(categoryDTO, Category.class);
+        updateById(category);
     }
 
     @Override
