@@ -26,7 +26,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/admin/employee")
 @Slf4j
-@Api(tags = "员工相关接口")
+@Api(tags = "员工管理接口")
 public class EmployeeController {
 
     @Autowired
@@ -102,7 +102,7 @@ public class EmployeeController {
     @ApiOperation(value = "编辑员工")
     public Result update(@RequestBody EmployeeDTO employeeDTO){
         log.info("编辑员工：{}", employeeDTO);
-        employeeService.updateEmployee(employeeDTO);
+        employeeService.update(employeeDTO);
         return Result.success();
     }
 }

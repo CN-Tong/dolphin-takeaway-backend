@@ -35,7 +35,7 @@ public class EmployeeServiceImpl extends ServiceImpl<EmployeeMapper, Employee> i
         String password = employeeLoginDTO.getPassword();
 
         //1、根据用户名查询数据库中的数据
-        Employee employee = employeeMapper.getByUsername(username);
+        Employee employee = query().eq("username", username).one();
 
         //2、处理各种异常情况（用户名不存在、密码不对、账号被锁定）
         if (employee == null) {
@@ -103,7 +103,7 @@ public class EmployeeServiceImpl extends ServiceImpl<EmployeeMapper, Employee> i
     }
 
     @Override
-    public void updateEmployee(EmployeeDTO employeeDTO) {
+    public void update(EmployeeDTO employeeDTO) {
         update().eq("id", employeeDTO.getId())
                 .set(employeeDTO.getName() != null, "name", employeeDTO.getName())
                 .set(employeeDTO.getUsername() != null, "username", employeeDTO.getUsername())
