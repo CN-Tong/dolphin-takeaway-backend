@@ -3,7 +3,6 @@ package com.tong.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.sun.xml.internal.bind.v2.TODO;
 import com.tong.constant.MessageConstant;
 import com.tong.constant.PasswordConstant;
 import com.tong.constant.StatusConstant;
@@ -17,7 +16,6 @@ import com.tong.exception.AccountNotFoundException;
 import com.tong.exception.PasswordErrorException;
 import com.tong.mapper.EmployeeMapper;
 import com.tong.result.PageResult;
-import com.tong.result.Result;
 import com.tong.service.EmployeeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -32,12 +30,6 @@ public class EmployeeServiceImpl extends ServiceImpl<EmployeeMapper, Employee> i
     @Autowired
     private EmployeeMapper employeeMapper;
 
-    /**
-     * 员工登录
-     *
-     * @param employeeLoginDTO
-     * @return
-     */
     public Employee login(EmployeeLoginDTO employeeLoginDTO) {
         String username = employeeLoginDTO.getUsername();
         String password = employeeLoginDTO.getPassword();
@@ -107,6 +99,19 @@ public class EmployeeServiceImpl extends ServiceImpl<EmployeeMapper, Employee> i
     public void startOrStop(Integer status, Long id) {
         update().eq("id", id)
                 .set("status", status)
+                .update();
+    }
+
+    @Override
+    public void updateEmployee(EmployeeDTO employeeDTO) {
+        update().eq("id", employeeDTO.getId())
+                .set(employeeDTO.getName() != null, "name", employeeDTO.getName())
+                .set(employeeDTO.getUsername() != null, "username", employeeDTO.getUsername())
+                .set(employeeDTO.getSex() != null, "sex", employeeDTO.getSex())
+                .set(employeeDTO.getPhone() != null, "phone", employeeDTO.getPhone())
+                .set(employeeDTO.getIdNumber() != null, "id_number", employeeDTO.getIdNumber())
+                .set("update_time", LocalDateTime.now())
+                .set("update_user", BaseContext.getCurrentId())
                 .update();
     }
 
