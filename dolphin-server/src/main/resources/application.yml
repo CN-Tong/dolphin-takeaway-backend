@@ -37,3 +37,8 @@ dolphin:
     admin-ttl: 72000000
     # 设置前端传递过来的令牌名称
     admin-token-name: token
+  huaweiobs:
+    endpoint: ${dolphin.huaweiobs.endpoint}
+    access-key-id: ${dolphin.huaweiobs.access-key-secret}
+    access-key-secret: ${dolphin.huaweiobs.access-key-secret}
+    bucket-name: ${dolphin.huaweiobs.bucket-name}

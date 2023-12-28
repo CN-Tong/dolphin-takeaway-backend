@@ -6,3 +6,8 @@ dolphin:
     database: dolphin-takeaway
     username: root
     password: 123456
+  huaweiobs:
+    endpoint: https://obs.cn-north-4.myhuaweicloud.com
+    access-key-id: ITYG1VUSXQQ7VAK6ISRF
+    access-key-secret: kTzCvVP8cB7WXHcrDyX4MvuCMu9GFZBmLT4fuaaK
+    bucket-name: dolphin-takeaway
