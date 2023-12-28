@@ -1,5 +1,6 @@
 package com.tong.controller.admin;
 
+import com.tong.constant.MessageConstant;
 import com.tong.result.Result;
 import com.tong.utils.HuaweiObsUtil;
 import io.swagger.annotations.Api;
@@ -38,6 +39,6 @@ public class CommonController {
         } catch (IOException e) {
             log.error("文件上传失败：{}", e);
         }
-        return Result.error("文件上传失败");
+        return Result.error(MessageConstant.UPLOAD_FAILED);
     }
 }
