@@ -103,4 +103,11 @@ public class EmployeeServiceImpl extends ServiceImpl<EmployeeMapper, Employee> i
         return new PageResult(total, records);
     }
 
+    @Override
+    public void startOrStop(Integer status, Long id) {
+        update().eq("id", id)
+                .set("status", status)
+                .update();
+    }
+
 }
