@@ -53,6 +53,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
         Page<Category> p = lambdaQuery()
                 .like(name != null, Category::getName, name)
                 .like(type != null, Category::getType, type)
+                .orderByDesc(Category::getSort)
                 .page(categoryPage);
         // 封装PageResult
         long total = p.getTotal();
