@@ -2,19 +2,26 @@ package com.tong.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import com.baomidou.mybatisplus.core.conditions.AbstractWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.baomidou.mybatisplus.extension.toolkit.Db;
+import com.tong.constant.MessageConstant;
 import com.tong.constant.StatusConstant;
 import com.tong.dto.DishDTO;
 import com.tong.dto.DishPageQueryDTO;
 import com.tong.entity.Category;
 import com.tong.entity.Dish;
 import com.tong.entity.DishFlavor;
+import com.tong.entity.SetmealDish;
+import com.tong.exception.DeletionNotAllowedException;
+import com.tong.mapper.DishFlavorMapper;
 import com.tong.mapper.DishMapper;
 import com.tong.result.PageResult;
 import com.tong.service.DishService;
 import com.tong.vo.DishVO;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +30,9 @@ import java.util.List;
 
 @Service
 public class DishServiceImpl extends ServiceImpl<DishMapper, Dish> implements DishService {
+
+    @Autowired
+    private DishFlavorMapper dishFlavorMapper;
 
     @Override
     @Transactional
@@ -82,5 +92,28 @@ public class DishServiceImpl extends ServiceImpl<DishMapper, Dish> implements Di
             }
         });
         return new PageResult(total, dishVOList);
+    }
+
+    @Override
+    @Transactional
+    public void deleteBatch(List<Long> ids) {
+        // 判断当前菜品是否能够删除--是否存在起售中的菜品 status
+        ids.forEach(id -> {
+            Dish dish = getById(id);
+            if (StatusConstant.ENABLE.equals(dish.getStatus())) {
+                throw new DeletionNotAllowedException(MessageConstant.DISH_ON_SALE);
+            }
+        });
+        // 判断当前菜品是否能够删除--是否被套餐关联了 setmealDish表
+        List<SetmealDish> setmealDishList = Db.listByIds(ids, SetmealDish.class);
+        if(CollUtil.isNotEmpty(setmealDishList)){
+            throw new DeletionNotAllowedException(MessageConstant.DISH_BE_RELATED_BY_SETMEAL);
+        }
+        // 删除菜品表中的菜品数据
+        removeBatchByIds(ids);
+        // 删除菜品关联的口味数据(不知道怎么用MP实现)
+        ids.forEach(id -> {
+            dishFlavorMapper.deleteByDishId(id);
+        });
     }
 }
