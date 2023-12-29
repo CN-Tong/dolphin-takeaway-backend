@@ -5,6 +5,7 @@ import com.tong.dto.DishDTO;
 import com.tong.dto.DishPageQueryDTO;
 import com.tong.entity.Dish;
 import com.tong.result.PageResult;
+import com.tong.vo.DishVO;
 
 import java.util.List;
 
@@ -15,4 +16,8 @@ public interface DishService extends IService<Dish> {
     PageResult pageQuery(DishPageQueryDTO dishPageQueryDTO);
 
     void deleteBatch(List<Long> ids);
+
+    DishVO getByIdWithFlavor(Long id);
+
+    void updateWithFlavor(DishDTO dishDTO);
 }

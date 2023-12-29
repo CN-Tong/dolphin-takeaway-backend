@@ -5,6 +5,7 @@ import com.tong.dto.DishPageQueryDTO;
 import com.tong.result.PageResult;
 import com.tong.result.Result;
 import com.tong.service.DishService;
+import com.tong.vo.DishVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
@@ -43,6 +44,22 @@ public class DishController {
     public Result delete(@RequestParam List<Long> ids){
         log.info("批量删除菜品，ids：{}", ids);
         dishService.deleteBatch(ids);
+        return Result.success();
+    }
+
+    @GetMapping("/{id}")
+    @ApiOperation("根据id查询菜品")
+    public Result<DishVO> getById(@PathVariable Long id){
+        log.info("根据id查询菜品，id：{}", id);
+        DishVO dishVO = dishService.getByIdWithFlavor(id);
+        return Result.success(dishVO);
+    }
+
+    @PutMapping
+    @ApiOperation("修改菜品")
+    public Result update(@RequestBody DishDTO dishDTO){
+        log.info("修改菜品，参数：{}", dishDTO);
+        dishService.updateWithFlavor(dishDTO);
         return Result.success();
     }
 }

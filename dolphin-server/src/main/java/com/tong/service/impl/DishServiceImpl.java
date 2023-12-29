@@ -117,4 +117,39 @@ public class DishServiceImpl extends ServiceImpl<DishMapper, Dish> implements Di
         //     dishFlavorMapper.deleteByDishId(id);
         // });
     }
+
+    @Override
+    public DishVO getByIdWithFlavor(Long id) {
+        // dish表根据id查询菜品
+        Dish dish = getById(id);
+        // dish_flavor表根据菜品id查询口味
+        Long dishId = dish.getId();
+        List<DishFlavor> dishFlavorList = Db.lambdaQuery(DishFlavor.class)
+                .eq(DishFlavor::getDishId, dishId)
+                .list();
+        // 封装DishVO
+        DishVO dishVO = BeanUtil.copyProperties(dish, DishVO.class);
+        dishVO.setFlavors(dishFlavorList);
+        return dishVO;
+    }
+
+    @Override
+    @Transactional
+    public void updateWithFlavor(DishDTO dishDTO) {
+        // 修改dish表数据
+        Dish dish = BeanUtil.copyProperties(dishDTO, Dish.class);
+        updateById(dish);
+        // 删除dish_flavor表数据
+        Long dishId = dishDTO.getId();
+        dishFlavorMapper.deleteByDishId(dishId);
+        // 新增dish_flavor表数据
+        List<DishFlavor> flavors = dishDTO.getFlavors();
+        // 设置dishId
+        flavors.forEach(flavor -> {
+            flavor.setDishId(dishId);
+        });
+        if(CollUtil.isNotEmpty(flavors)){
+            Db.saveBatch(flavors);
+        }
+    }
 }
