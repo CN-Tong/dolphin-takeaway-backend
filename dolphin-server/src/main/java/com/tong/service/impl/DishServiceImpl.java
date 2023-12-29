@@ -112,8 +112,9 @@ public class DishServiceImpl extends ServiceImpl<DishMapper, Dish> implements Di
         // 删除菜品表中的菜品数据
         removeBatchByIds(ids);
         // 删除菜品关联的口味数据(不知道怎么用MP实现)
-        ids.forEach(id -> {
-            dishFlavorMapper.deleteByDishId(id);
-        });
+        dishFlavorMapper.deleteByDishIds(ids);
+        // ids.forEach(id -> {
+        //     dishFlavorMapper.deleteByDishId(id);
+        // });
     }
 }
