@@ -12,6 +12,11 @@ spring:
       url: jdbc:mysql://${dolphin.datasource.host}:${dolphin.datasource.port}/${dolphin.datasource.database}?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&useSSL=false&allowPublicKeyRetrieval=true
       username: ${dolphin.datasource.username}
       password: ${dolphin.datasource.password}
+  redis:
+    host: ${dolphin.redis.host}
+    port: ${dolphin.redis.port}
+    password: ${dolphin.redis.password}
+    database: ${dolphin.redis.database}
 
 mybatis-plus:
   #mapper配置文件
