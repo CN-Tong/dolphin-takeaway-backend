@@ -19,5 +19,7 @@ public interface CategoryService extends IService<Category> {
 
     void delete(Long id);
 
-    List<Category> getByType(String type);
+    List<Category> getByType(Integer type);
+
+    List<Category> list(Integer type);
 }

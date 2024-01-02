@@ -80,8 +80,16 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
     }
 
     @Override
-    public List<Category> getByType(String type) {
+    public List<Category> getByType(Integer type) {
         List<Category> categoryList = query().eq(type != null, "type", type).list();
         return categoryList;
+    }
+
+    @Override
+    public List<Category> list(Integer type) {
+        List<Category> list = lambdaQuery()
+                .eq(type != null, Category::getType, type)
+                .list();
+        return list;
     }
 }
