@@ -16,3 +16,6 @@ dolphin:
     port: 6379
     password: 123456
     database: 1
+  wechat:
+    appid: wx619c74642bde7f14
+    secret: d51e39ff54814f26e3e107ed38541220
