@@ -22,4 +22,6 @@ public interface DishService extends IService<Dish> {
     void updateWithFlavor(DishDTO dishDTO);
 
     List<DishVO> listByCategoryIdWithFlavor(Long categoryId);
+
+    void startOrStop(Integer status, Long id);
 }

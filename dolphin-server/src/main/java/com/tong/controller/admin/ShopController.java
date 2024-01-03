@@ -1,5 +1,6 @@
 package com.tong.controller.admin;
 
+import com.tong.constant.RedisConstant;
 import com.tong.result.Result;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -14,8 +15,6 @@ import org.springframework.web.bind.annotation.*;
 @Slf4j
 public class ShopController {
 
-    public static final String key = "SHOP_STATUS";
-
     @Autowired
     private RedisTemplate redisTemplate;
 
@@ -23,14 +22,14 @@ public class ShopController {
     @ApiOperation("设置店铺营业状态")
     public Result setStatus(@PathVariable Integer status){
         log.info("设置店铺营业状态，{}", status == 1 ? "营业中" : "打烊中");
-        redisTemplate.opsForValue().set(key, status);
+        redisTemplate.opsForValue().set(RedisConstant.SHOP_STATUS_KEY, status);
         return Result.success();
     }
 
     @GetMapping("/status")
     @ApiOperation("获取店铺营业状态")
     public Result getStatus(){
-        Integer status = (Integer) redisTemplate.opsForValue().get(key);
+        Integer status = (Integer) redisTemplate.opsForValue().get(RedisConstant.SHOP_STATUS_KEY);
         log.info("获取店铺营业状态为，{}", status == 1 ? "营业中" : "打烊中");
         return Result.success(status);
     }

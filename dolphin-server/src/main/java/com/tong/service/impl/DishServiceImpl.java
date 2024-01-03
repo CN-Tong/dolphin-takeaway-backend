@@ -86,7 +86,7 @@ public class DishServiceImpl extends ServiceImpl<DishMapper, Dish> implements Di
             // 根据categoryId查询分类
             if (dishVO.getCategoryId() != null) {
                 Category category = Db.getById(dishVO.getCategoryId(), Category.class);
-                if(category != null){
+                if (category != null) {
                     String categoryName = category.getName();
                     dishVO.setCategoryName(categoryName);
                 }
@@ -107,7 +107,7 @@ public class DishServiceImpl extends ServiceImpl<DishMapper, Dish> implements Di
         });
         // 判断当前菜品是否能够删除--是否被套餐关联了 setmealDish表
         List<SetmealDish> setmealDishList = Db.listByIds(ids, SetmealDish.class);
-        if(CollUtil.isNotEmpty(setmealDishList)){
+        if (CollUtil.isNotEmpty(setmealDishList)) {
             throw new DeletionNotAllowedException(MessageConstant.DISH_BE_RELATED_BY_SETMEAL);
         }
         // 删除菜品表中的菜品数据
@@ -149,7 +149,7 @@ public class DishServiceImpl extends ServiceImpl<DishMapper, Dish> implements Di
         flavors.forEach(flavor -> {
             flavor.setDishId(dishId);
         });
-        if(CollUtil.isNotEmpty(flavors)){
+        if (CollUtil.isNotEmpty(flavors)) {
             Db.saveBatch(flavors);
         }
     }
@@ -171,5 +171,13 @@ public class DishServiceImpl extends ServiceImpl<DishMapper, Dish> implements Di
             dishVOList.add(dishVO);
         });
         return dishVOList;
+    }
+
+    @Override
+    public void startOrStop(Integer status, Long id) {
+        lambdaUpdate()
+                .eq(Dish::getId, id)
+                .set(Dish::getStatus, status)
+                .update();
     }
 }
