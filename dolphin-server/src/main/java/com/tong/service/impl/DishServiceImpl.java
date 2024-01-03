@@ -42,7 +42,6 @@ public class DishServiceImpl extends ServiceImpl<DishMapper, Dish> implements Di
         dish.setStatus(StatusConstant.ENABLE);
         // 1.向菜品表插入1条数据
         save(dish);
-
         // 2.向口味表插入n条数据
         List<DishFlavor> flavors = dishDTO.getFlavors();
         // 口味可能未勾选
@@ -114,9 +113,6 @@ public class DishServiceImpl extends ServiceImpl<DishMapper, Dish> implements Di
         removeBatchByIds(ids);
         // 删除菜品关联的口味数据(不知道怎么用MP实现)
         dishFlavorMapper.deleteByDishIds(ids);
-        // ids.forEach(id -> {
-        //     dishFlavorMapper.deleteByDishId(id);
-        // });
     }
 
     @Override
@@ -146,9 +142,7 @@ public class DishServiceImpl extends ServiceImpl<DishMapper, Dish> implements Di
         // 新增dish_flavor表数据
         List<DishFlavor> flavors = dishDTO.getFlavors();
         // 设置dishId
-        flavors.forEach(flavor -> {
-            flavor.setDishId(dishId);
-        });
+        flavors.forEach(flavor -> flavor.setDishId(dishId));
         if (CollUtil.isNotEmpty(flavors)) {
             Db.saveBatch(flavors);
         }
