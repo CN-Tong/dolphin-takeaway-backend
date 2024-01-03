@@ -1,7 +1,5 @@
 package com.tong.controller.admin;
 
-import com.tong.constant.RedisConstant;
-import com.tong.dto.DishPageQueryDTO;
 import com.tong.dto.SetmealDTO;
 import com.tong.dto.SetmealPageQueryDTO;
 import com.tong.result.PageResult;
