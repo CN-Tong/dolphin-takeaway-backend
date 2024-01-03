@@ -174,4 +174,12 @@ public class DishServiceImpl extends ServiceImpl<DishMapper, Dish> implements Di
                 .set(Dish::getStatus, status)
                 .update();
     }
+
+    @Override
+    public List<Dish> listByCategoryId(Long categoryId) {
+        List<Dish> dishList = lambdaQuery()
+                .eq(Dish::getCategoryId, categoryId)
+                .list();
+        return dishList;
+    }
 }

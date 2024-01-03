@@ -4,6 +4,7 @@ import com.tong.constant.JwtClaimsConstant;
 import com.tong.dto.EmployeeDTO;
 import com.tong.dto.EmployeeLoginDTO;
 import com.tong.dto.EmployeePageQueryDTO;
+import com.tong.dto.PasswordEditDTO;
 import com.tong.entity.Employee;
 import com.tong.properties.JwtProperties;
 import com.tong.result.PageResult;
@@ -103,6 +104,14 @@ public class EmployeeController {
     public Result update(@RequestBody EmployeeDTO employeeDTO){
         log.info("编辑员工：{}", employeeDTO);
         employeeService.update(employeeDTO);
+        return Result.success();
+    }
+
+    @PutMapping("/editPassword")
+    @ApiOperation("修改密码")
+    public Result editPassword(@RequestBody PasswordEditDTO passwordEditDTO){
+        log.info("修改密码，参数：{}", passwordEditDTO);
+        employeeService.editPassword(passwordEditDTO);
         return Result.success();
     }
 }

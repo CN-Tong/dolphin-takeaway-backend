@@ -24,4 +24,6 @@ public interface DishService extends IService<Dish> {
     List<DishVO> listByCategoryIdWithFlavor(Long categoryId);
 
     void startOrStop(Integer status, Long id);
+
+    List<Dish> listByCategoryId(Long categoryId);
 }

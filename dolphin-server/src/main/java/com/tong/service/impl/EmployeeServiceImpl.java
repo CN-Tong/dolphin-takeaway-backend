@@ -10,9 +10,11 @@ import com.tong.context.BaseContext;
 import com.tong.dto.EmployeeDTO;
 import com.tong.dto.EmployeeLoginDTO;
 import com.tong.dto.EmployeePageQueryDTO;
+import com.tong.dto.PasswordEditDTO;
 import com.tong.entity.Employee;
 import com.tong.exception.AccountLockedException;
 import com.tong.exception.AccountNotFoundException;
+import com.tong.exception.PasswordEditFailedException;
 import com.tong.exception.PasswordErrorException;
 import com.tong.mapper.EmployeeMapper;
 import com.tong.result.PageResult;
@@ -105,6 +107,21 @@ public class EmployeeServiceImpl extends ServiceImpl<EmployeeMapper, Employee> i
     @Override
     public void update(EmployeeDTO employeeDTO) {
         Employee employee = BeanUtil.copyProperties(employeeDTO, Employee.class);
+        updateById(employee);
+    }
+
+    @Override
+    public void editPassword(PasswordEditDTO passwordEditDTO) {
+        Employee employee = getById(passwordEditDTO.getEmpId());
+        // 旧密码进行md5加密处理
+        String oldPassword = DigestUtils.md5DigestAsHex(passwordEditDTO.getOldPassword().getBytes());
+        // 如果旧密码不正确，抛出异常
+        if(!employee.getPassword().equals(oldPassword)){
+            throw new PasswordEditFailedException(MessageConstant.PASSWORD_EDIT_FAILED);
+        }
+        // 如果旧密码正确，修改为新密码
+        String newPassword = DigestUtils.md5DigestAsHex(passwordEditDTO.getNewPassword().getBytes());
+        employee.setPassword(newPassword);
         updateById(employee);
     }
 

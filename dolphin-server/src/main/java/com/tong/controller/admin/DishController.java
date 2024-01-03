@@ -3,6 +3,7 @@ package com.tong.controller.admin;
 import com.tong.constant.RedisConstant;
 import com.tong.dto.DishDTO;
 import com.tong.dto.DishPageQueryDTO;
+import com.tong.entity.Dish;
 import com.tong.result.PageResult;
 import com.tong.result.Result;
 import com.tong.service.DishService;
@@ -34,8 +35,6 @@ public class DishController {
         log.info("新增菜品，参数：{}", dishDTO);
         dishService.saveWithFlavor(dishDTO);
         // 清理 dish:{categoryId} 缓存数据
-        // String key = RedisConstant.DISH_KEY + dishDTO.getCategoryId();
-        // redisTemplate.delete(key);
         cleanCache(RedisConstant.DISH_KEY + dishDTO.getCategoryId());
         return Result.success();
     }
@@ -84,6 +83,14 @@ public class DishController {
         // 清理 dish:* 缓存数据
         cleanCache(RedisConstant.DISH_KEY + "*");
         return Result.success();
+    }
+
+    @GetMapping("/list")
+    @ApiOperation("根据分类id查询菜品")
+    public Result<List<Dish>> list(Long categoryId){
+        log.info("根据分类id查询菜品，分类id：{}", categoryId);
+        List<Dish> dishList = dishService.listByCategoryId(categoryId);
+        return Result.success(dishList);
     }
 
     /**
