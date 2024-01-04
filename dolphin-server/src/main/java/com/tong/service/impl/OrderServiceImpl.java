@@ -127,15 +127,12 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Orders> implement
     }
 
     @Override
-    @Transactional
     public void cancelById(Long id) {
-        // 删除order表的1条数据
-        removeById(id);
-        // 删除order_detail的多条数据
-        List<OrderDetail> orderDetailList = Db.lambdaQuery(OrderDetail.class)
-                .eq(OrderDetail::getOrderId, id)
-                .list();
-        orderDetailList.forEach(orderDetail -> Db.removeById(orderDetail.getOrderId(), OrderDetail.class));
+        // 修改order表的status为已取消
+        lambdaUpdate()
+                .eq(Orders::getId, id)
+                .set(Orders::getStatus, Orders.CANCELLED)
+                .update();
     }
 
     @Override
