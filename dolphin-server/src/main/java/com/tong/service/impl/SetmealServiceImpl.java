@@ -20,6 +20,7 @@ import com.tong.vo.DishVO;
 import com.tong.vo.SetmealVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -64,6 +65,7 @@ public class SetmealServiceImpl extends ServiceImpl<SetmealMapper, Setmeal> impl
     }
 
     @Override
+    @Transactional
     public void deleteBatch(List<Long> ids) {
         // 判断当前套餐是否能够删除--是否存在起售中的套餐 status
         ids.forEach(id -> {
@@ -79,6 +81,7 @@ public class SetmealServiceImpl extends ServiceImpl<SetmealMapper, Setmeal> impl
     }
 
     @Override
+    @Transactional
     public void updateWithDish(SetmealDTO setmealDTO) {
         // 修改setmeal表数据
         Setmeal setmeal = BeanUtil.copyProperties(setmealDTO, Setmeal.class);
@@ -90,7 +93,7 @@ public class SetmealServiceImpl extends ServiceImpl<SetmealMapper, Setmeal> impl
         List<SetmealDish> setmealDishList = setmealDTO.getSetmealDishes();
         // 设置setmealId
         setmealDishList.forEach(setmealDish -> setmealDish.setSetmealId(setmealId));
-        Db.save(setmealDishList);
+        Db.saveBatch(setmealDishList);
     }
 
     @Override

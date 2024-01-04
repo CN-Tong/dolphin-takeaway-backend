@@ -69,7 +69,7 @@ public class DishServiceImpl extends ServiceImpl<DishMapper, Dish> implements Di
                 .like(name != null, Dish::getName, name)
                 .eq(status != null, Dish::getStatus, status)
                 .eq(categoryId != null, Dish::getCategoryId, categoryId)
-                .orderByAsc(Dish::getCategoryId)
+                .orderByDesc(Dish::getCategoryId)
                 .page(p);
         // 查询的总页数
         long total = pageRes.getTotal();
