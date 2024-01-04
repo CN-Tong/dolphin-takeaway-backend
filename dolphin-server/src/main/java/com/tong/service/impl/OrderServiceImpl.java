@@ -2,6 +2,8 @@ package com.tong.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import com.baomidou.mybatisplus.core.conditions.AbstractWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.baomidou.mybatisplus.extension.toolkit.Db;
 import com.tong.constant.MessageConstant;
@@ -13,14 +15,18 @@ import com.tong.entity.Orders;
 import com.tong.entity.ShoppingCart;
 import com.tong.exception.OrderBusinessException;
 import com.tong.mapper.OrderMapper;
+import com.tong.result.PageResult;
 import com.tong.service.OrderService;
 import com.tong.service.ShoppingCartService;
 import com.tong.vo.OrderSubmitVO;
+import com.tong.vo.OrderVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -59,7 +65,10 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Orders> implement
         // 向order_detail表插入n条数据
         List<OrderDetail> orderDetailList = BeanUtil.copyToList(shoppingCartList, OrderDetail.class);
         Long ordersId = orders.getId();
-        orderDetailList.forEach(orderDetail -> orderDetail.setOrderId(ordersId));
+        orderDetailList.forEach(orderDetail -> {
+            orderDetail.setId(null);
+            orderDetail.setOrderId(ordersId);
+        });
         Db.saveBatch(orderDetailList);
         // 清空用户的购物车数据
         shoppingCartService.cleanShoppingCart();
@@ -71,5 +80,75 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Orders> implement
                 .orderTime(orders.getOrderTime())
                 .build();
         return orderSubmitVO;
+    }
+
+    @Override
+    public PageResult pageHistoryOrders(Integer page, Integer pageSize, Integer status) {
+        // 分页查询order表
+        Page<Orders> ordersPage = Page.of(page, pageSize);
+        Page<Orders> p = lambdaQuery()
+                .eq(Orders::getUserId, BaseContext.getCurrentId())
+                .eq(status != null, Orders::getStatus, status)
+                .page(ordersPage);
+        long total = p.getTotal();
+        List<Orders> ordersList = p.getRecords();
+        // 封装PageResult
+        PageResult pageResult = new PageResult();
+        pageResult.setTotal(total);
+        // 非空校验
+        if(CollUtil.isEmpty(ordersList)){
+            pageResult.setRecords(Collections.emptyList());
+            return pageResult;
+        }
+        // 封装VO
+        List<OrderVO> orderVOList = BeanUtil.copyToList(ordersList, OrderVO.class);
+        orderVOList.forEach(orderVO -> {
+            // 查询order_detail表
+            Long orderVOId = orderVO.getId();
+            List<OrderDetail> orderDetailList = Db.lambdaQuery(OrderDetail.class)
+                    .eq(OrderDetail::getOrderId, orderVOId)
+                    .list();
+            orderVO.setOrderDetailList(orderDetailList);
+        });
+        pageResult.setRecords(orderVOList);
+        return pageResult;
+    }
+
+    @Override
+    public OrderVO getOrderDetailById(Long id) {
+        Orders orders = getById(id);
+        OrderVO orderVO = BeanUtil.copyProperties(orders, OrderVO.class);
+        Long ordersId = orders.getId();
+        List<OrderDetail> orderDetailList = Db.lambdaQuery(OrderDetail.class)
+                .eq(OrderDetail::getOrderId, ordersId)
+                .list();
+        orderVO.setOrderDetailList(orderDetailList);
+        return orderVO;
+    }
+
+    @Override
+    @Transactional
+    public void cancelById(Long id) {
+        // 删除order表的1条数据
+        removeById(id);
+        // 删除order_detail的多条数据
+        List<OrderDetail> orderDetailList = Db.lambdaQuery(OrderDetail.class)
+                .eq(OrderDetail::getOrderId, id)
+                .list();
+        orderDetailList.forEach(orderDetail -> Db.removeById(orderDetail.getOrderId(), OrderDetail.class));
+    }
+
+    @Override
+    public void repetitionById(Long id) {
+        // 查询order_detail表
+        List<OrderDetail> orderDetailList = Db.lambdaQuery(OrderDetail.class)
+                .eq(OrderDetail::getOrderId, id)
+                .list();
+        // 封装成ShoppingCart对象
+        List<ShoppingCart> shoppingCartList = BeanUtil.copyToList(orderDetailList, ShoppingCart.class);
+        // 指定当前用户id
+        shoppingCartList.forEach(shoppingCart -> shoppingCart.setUserId(BaseContext.getCurrentId()));
+        // 批量添加到shopping_cart表
+        Db.saveBatch(shoppingCartList);
     }
 }
