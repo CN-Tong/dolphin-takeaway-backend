@@ -18,6 +18,7 @@ import com.tong.mapper.OrderMapper;
 import com.tong.result.PageResult;
 import com.tong.service.OrderService;
 import com.tong.service.ShoppingCartService;
+import com.tong.vo.OrderPaymentVO;
 import com.tong.vo.OrderStatisticsVO;
 import com.tong.vo.OrderSubmitVO;
 import com.tong.vo.OrderVO;
@@ -258,5 +259,16 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Orders> implement
         orderStatisticsVO.setConfirmed(count2.intValue());
         orderStatisticsVO.setDeliveryInProgress(count3.intValue());
         return orderStatisticsVO;
+    }
+
+    @Override
+    public OrderPaymentVO payment(OrdersPaymentDTO ordersPaymentDTO) {
+        String orderNumber = ordersPaymentDTO.getOrderNumber();
+        Integer payMethod = ordersPaymentDTO.getPayMethod();
+        lambdaUpdate()
+                .eq(Orders::getNumber, orderNumber)
+                .set(Orders::getStatus, Orders.TO_BE_CONFIRMED)
+                .update();
+        return new OrderPaymentVO();
     }
 }

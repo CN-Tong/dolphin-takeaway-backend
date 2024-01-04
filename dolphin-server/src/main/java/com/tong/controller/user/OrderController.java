@@ -1,10 +1,12 @@
 package com.tong.controller.user;
 
+import com.tong.dto.OrdersPaymentDTO;
 import com.tong.dto.OrdersSubmitDTO;
 import com.tong.result.PageResult;
 import com.tong.result.Result;
 import com.tong.service.OrderDetailService;
 import com.tong.service.OrderService;
+import com.tong.vo.OrderPaymentVO;
 import com.tong.vo.OrderSubmitVO;
 import com.tong.vo.OrderVO;
 import io.swagger.annotations.Api;
@@ -62,5 +64,13 @@ public class OrderController {
         log.info("再来一单，id：{}", id);
         orderService.repetitionById(id);
         return Result.success();
+    }
+
+    @PutMapping("/payment")
+    @ApiOperation("订单支付")
+    public Result<OrderPaymentVO> payment(@RequestBody OrdersPaymentDTO ordersPaymentDTO){
+        log.info("订单支付，参数：{}", ordersPaymentDTO);
+        OrderPaymentVO orderPaymentVO = orderService.payment(ordersPaymentDTO);
+        return Result.success(orderPaymentVO);
     }
 }

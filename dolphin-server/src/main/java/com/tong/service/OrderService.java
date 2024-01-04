@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.tong.dto.*;
 import com.tong.entity.Orders;
 import com.tong.result.PageResult;
+import com.tong.vo.OrderPaymentVO;
 import com.tong.vo.OrderStatisticsVO;
 import com.tong.vo.OrderSubmitVO;
 import com.tong.vo.OrderVO;
@@ -33,4 +34,6 @@ public interface OrderService extends IService<Orders> {
     void completeById(Long id);
 
     OrderStatisticsVO statistics();
+
+    OrderPaymentVO payment(OrdersPaymentDTO ordersPaymentDTO);
 }
