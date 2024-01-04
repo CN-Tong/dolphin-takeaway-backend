@@ -1,9 +1,10 @@
 package com.tong.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.tong.dto.OrdersSubmitDTO;
+import com.tong.dto.*;
 import com.tong.entity.Orders;
 import com.tong.result.PageResult;
+import com.tong.vo.OrderStatisticsVO;
 import com.tong.vo.OrderSubmitVO;
 import com.tong.vo.OrderVO;
 
@@ -18,4 +19,18 @@ public interface OrderService extends IService<Orders> {
     void cancelById(Long id);
 
     void repetitionById(Long id);
+
+    PageResult conditionSearch(OrdersPageQueryDTO ordersPageQueryDTO);
+
+    void cancelWithReason(OrdersCancelDTO ordersCancelDTO);
+
+    void confirm(OrdersConfirmDTO ordersConfirmDTO);
+
+    void rejectWithReason(OrdersRejectionDTO ordersRejectionDTO);
+
+    void deliveryById(Long id);
+
+    void completeById(Long id);
+
+    OrderStatisticsVO statistics();
 }

@@ -8,7 +8,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.baomidou.mybatisplus.extension.toolkit.Db;
 import com.tong.constant.MessageConstant;
 import com.tong.context.BaseContext;
-import com.tong.dto.OrdersSubmitDTO;
+import com.tong.dto.*;
 import com.tong.entity.AddressBook;
 import com.tong.entity.OrderDetail;
 import com.tong.entity.Orders;
@@ -18,6 +18,7 @@ import com.tong.mapper.OrderMapper;
 import com.tong.result.PageResult;
 import com.tong.service.OrderService;
 import com.tong.service.ShoppingCartService;
+import com.tong.vo.OrderStatisticsVO;
 import com.tong.vo.OrderSubmitVO;
 import com.tong.vo.OrderVO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,7 +42,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Orders> implement
         // 处理业务异常-地址为空
         Long addressBookId = ordersSubmitDTO.getAddressBookId();
         AddressBook addressBook = Db.getById(addressBookId, AddressBook.class);
-        if(addressBook == null){
+        if (addressBook == null) {
             throw new OrderBusinessException(MessageConstant.ADDRESS_BOOK_IS_NULL);
         }
         // 处理业务异常-购物车为空
@@ -49,7 +50,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Orders> implement
         List<ShoppingCart> shoppingCartList = Db.lambdaQuery(ShoppingCart.class)
                 .eq(ShoppingCart::getUserId, currentId)
                 .list();
-        if(CollUtil.isEmpty(shoppingCartList)){
+        if (CollUtil.isEmpty(shoppingCartList)) {
             throw new OrderBusinessException(MessageConstant.SHOPPING_CART_IS_NULL);
         }
         // 向order表插入1条数据
@@ -96,7 +97,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Orders> implement
         PageResult pageResult = new PageResult();
         pageResult.setTotal(total);
         // 非空校验
-        if(CollUtil.isEmpty(ordersList)){
+        if (CollUtil.isEmpty(ordersList)) {
             pageResult.setRecords(Collections.emptyList());
             return pageResult;
         }
@@ -147,5 +148,115 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Orders> implement
         shoppingCartList.forEach(shoppingCart -> shoppingCart.setUserId(BaseContext.getCurrentId()));
         // 批量添加到shopping_cart表
         Db.saveBatch(shoppingCartList);
+    }
+
+    @Override
+    public PageResult conditionSearch(OrdersPageQueryDTO ordersPageQueryDTO) {
+        String number = ordersPageQueryDTO.getNumber();
+        String phone = ordersPageQueryDTO.getPhone();
+        Integer status = ordersPageQueryDTO.getStatus();
+        LocalDateTime beginTime = ordersPageQueryDTO.getBeginTime();
+        LocalDateTime endTime = ordersPageQueryDTO.getEndTime();
+        // 带条件的分页查询order表
+        Page<Orders> page = Page.of(ordersPageQueryDTO.getPage(), ordersPageQueryDTO.getPageSize());
+        Page<Orders> p = lambdaQuery()
+                .like(number != null, Orders::getNumber, number)
+                .like(phone != null, Orders::getPhone, phone)
+                .eq(status != null, Orders::getStatus, status)
+                .ge(beginTime != null, Orders::getOrderTime, beginTime)
+                .le(endTime != null, Orders::getOrderTime, endTime)
+                .page(page);
+        // 获取分页查询结果
+        long total = p.getTotal();
+        List<Orders> ordersList = p.getRecords();
+        // 封装PageResult
+        PageResult pageResult = new PageResult();
+        pageResult.setTotal(total);
+        // 非空校验
+        if (CollUtil.isEmpty(ordersList)) {
+            pageResult.setRecords(Collections.emptyList());
+            return pageResult;
+        }
+        // 封装VO
+        List<OrderVO> orderVOList = BeanUtil.copyToList(ordersList, OrderVO.class);
+        orderVOList.forEach(orderVO -> {
+            // 查询order_detail表
+            Long orderVOId = orderVO.getId();
+            List<OrderDetail> orderDetailList = Db.lambdaQuery(OrderDetail.class)
+                    .eq(OrderDetail::getOrderId, orderVOId)
+                    .list();
+            orderVO.setOrderDetailList(orderDetailList);
+        });
+        pageResult.setRecords(orderVOList);
+        return pageResult;
+    }
+
+    @Override
+    public void cancelWithReason(OrdersCancelDTO ordersCancelDTO) {
+        String cancelReason = ordersCancelDTO.getCancelReason();
+        Long orderId = ordersCancelDTO.getId();
+        lambdaUpdate()
+                .eq(Orders::getId, orderId)
+                .set(Orders::getCancelReason, cancelReason)
+                .set(Orders::getStatus, Orders.CANCELLED)
+                .update();
+    }
+
+    @Override
+    public void confirm(OrdersConfirmDTO ordersConfirmDTO) {
+        Long orderId = ordersConfirmDTO.getId();
+        Integer status = ordersConfirmDTO.getStatus();
+        lambdaUpdate()
+                .eq(Orders::getId, orderId)
+                .set(Orders::getStatus, status == null ? Orders.CONFIRMED : status)
+                .update();
+    }
+
+    @Override
+    public void rejectWithReason(OrdersRejectionDTO ordersRejectionDTO) {
+        String rejectionReason = ordersRejectionDTO.getRejectionReason();
+        Long orderId = ordersRejectionDTO.getId();
+        lambdaUpdate()
+                .eq(Orders::getId, orderId)
+                .set(Orders::getRejectionReason, rejectionReason)
+                .set(Orders::getStatus, Orders.CANCELLED)
+                .update();
+    }
+
+    @Override
+    public void deliveryById(Long id) {
+        lambdaUpdate()
+                .eq(Orders::getId, id)
+                .set(Orders::getStatus, Orders.DELIVERY_IN_PROGRESS)
+                .update();
+    }
+
+    @Override
+    public void completeById(Long id) {
+        lambdaUpdate()
+                .eq(Orders::getId, id)
+                .set(Orders::getStatus, Orders.COMPLETED)
+                .update();
+    }
+
+    @Override
+    public OrderStatisticsVO statistics() {
+        OrderStatisticsVO orderStatisticsVO = new OrderStatisticsVO();
+        // 待接单数量
+        Long count1 = lambdaQuery()
+                .eq(Orders::getStatus, Orders.TO_BE_CONFIRMED)
+                .count();
+        // 待派送数量
+        Long count2 = lambdaQuery()
+                .eq(Orders::getStatus, Orders.CONFIRMED)
+                .count();
+        // 派送中数量
+        Long count3 = lambdaQuery()
+                .eq(Orders::getStatus, Orders.DELIVERY_IN_PROGRESS)
+                .count();
+        orderStatisticsVO.setToBeConfirmed(count1.intValue());
+        orderStatisticsVO.setConfirmed(count2.intValue());
+        orderStatisticsVO.setDeliveryInProgress(count3.intValue());
+        return orderStatisticsVO;
     }
 }
