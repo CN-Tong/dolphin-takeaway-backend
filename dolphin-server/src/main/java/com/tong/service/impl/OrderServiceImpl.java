@@ -2,6 +2,7 @@ package com.tong.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.AbstractWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -22,20 +23,21 @@ import com.tong.vo.OrderPaymentVO;
 import com.tong.vo.OrderStatisticsVO;
 import com.tong.vo.OrderSubmitVO;
 import com.tong.vo.OrderVO;
+import com.tong.websocket.WebSocketServer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 @Service
 public class OrderServiceImpl extends ServiceImpl<OrderMapper, Orders> implements OrderService {
 
     @Autowired
     private ShoppingCartService shoppingCartService;
+    @Autowired
+    private WebSocketServer webSocketServer;
 
     @Override
     @Transactional
@@ -269,6 +271,19 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Orders> implement
                 .eq(Orders::getNumber, orderNumber)
                 .set(Orders::getStatus, Orders.TO_BE_CONFIRMED)
                 .update();
+        // 通过WebSocket向浏览器推送消息 type orderId content
+        Map map = new HashMap();
+        map.put("type", 1);
+        Orders orders = lambdaQuery()
+                .eq(Orders::getNumber, orderNumber)
+                .one();
+        Long ordersId = orders.getId();
+        map.put("orderId", ordersId);
+        map.put("content", "订单号："+orderNumber);
+        // 对象转JSON
+        String json = JSON.toJSONString(map);
+        // 向浏览器推送
+        webSocketServer.sendToAllClient(json);
         return new OrderPaymentVO();
     }
 

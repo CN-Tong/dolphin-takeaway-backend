@@ -89,6 +89,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
     public List<Category> list(Integer type) {
         List<Category> list = lambdaQuery()
                 .eq(type != null, Category::getType, type)
+                .orderByDesc(Category::getSort)
                 .list();
         return list;
     }
