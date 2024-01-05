@@ -176,9 +176,10 @@ public class ReportServiceImpl implements ReportService {
         // 查询order_detail表
         QueryWrapper<OrderDetail> wrapper = new QueryWrapper<>();
         Page<OrderDetail> page = Page.of(0, 10);
-        wrapper.select("name", "count(number) as number")
+        wrapper.select("name", "sum(number) as number")
                 .in("order_id", orderIds)
-                .groupBy("name");
+                .groupBy("name")
+                .orderByDesc("number");
         Page<OrderDetail> p = orderDetailService.page(page, wrapper);
         List<OrderDetail> orderDetailList = p.getRecords();
         // 封装GoodsSalesDTO
