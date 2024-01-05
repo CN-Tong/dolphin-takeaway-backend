@@ -9,6 +9,9 @@ import com.tong.vo.OrderStatisticsVO;
 import com.tong.vo.OrderSubmitVO;
 import com.tong.vo.OrderVO;
 
+import java.time.LocalDateTime;
+import java.util.List;
+
 public interface OrderService extends IService<Orders> {
 
     OrderSubmitVO submitOrder(OrdersSubmitDTO ordersSubmitDTO);
@@ -36,4 +39,6 @@ public interface OrderService extends IService<Orders> {
     OrderStatisticsVO statistics();
 
     OrderPaymentVO payment(OrdersPaymentDTO ordersPaymentDTO);
+
+    List<Orders> getByStatusAndOrderTimeLt(Integer status, LocalDateTime orderTime);
 }

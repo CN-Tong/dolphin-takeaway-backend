@@ -271,4 +271,13 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Orders> implement
                 .update();
         return new OrderPaymentVO();
     }
+
+    @Override
+    public List<Orders> getByStatusAndOrderTimeLt(Integer status, LocalDateTime orderTime) {
+        List<Orders> ordersList = lambdaQuery()
+                .eq(Orders::getStatus, status)
+                .lt(Orders::getOrderTime, orderTime)
+                .list();
+        return ordersList;
+    }
 }
