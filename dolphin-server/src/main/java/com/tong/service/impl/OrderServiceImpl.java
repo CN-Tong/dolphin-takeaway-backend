@@ -93,6 +93,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Orders> implement
         Page<Orders> p = lambdaQuery()
                 .eq(Orders::getUserId, BaseContext.getCurrentId())
                 .eq(status != null, Orders::getStatus, status)
+                .orderByDesc(Orders::getOrderTime)
                 .page(ordersPage);
         long total = p.getTotal();
         List<Orders> ordersList = p.getRecords();
