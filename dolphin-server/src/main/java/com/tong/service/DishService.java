@@ -26,4 +26,6 @@ public interface DishService extends IService<Dish> {
     void startOrStop(Integer status, Long id);
 
     List<Dish> listByCategoryId(Long categoryId);
+
+    Long getDishCountByStatus(Integer status);
 }

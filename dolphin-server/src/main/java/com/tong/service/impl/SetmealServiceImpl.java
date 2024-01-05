@@ -158,5 +158,13 @@ public class SetmealServiceImpl extends ServiceImpl<SetmealMapper, Setmeal> impl
                 .update();
     }
 
-
+    /**
+     * 根据套餐状态查询菜品数量
+     */
+    @Override
+    public Long getDishCountByStatus(Integer status) {
+        return lambdaQuery()
+                .eq(Setmeal::getStatus, status)
+                .count();
+    }
 }

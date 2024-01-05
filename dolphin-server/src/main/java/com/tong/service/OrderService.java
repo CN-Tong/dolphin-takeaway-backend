@@ -43,4 +43,6 @@ public interface OrderService extends IService<Orders> {
     List<Orders> getByStatusAndOrderTimeLt(Integer status, LocalDateTime orderTime);
 
     void reminderById(Long id);
+
+    Long getOrderCountByStatus(Integer status);
 }

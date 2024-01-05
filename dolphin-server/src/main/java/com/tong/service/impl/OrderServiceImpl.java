@@ -313,4 +313,14 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Orders> implement
         // 向浏览器推送
         webSocketServer.sendToAllClient(json);
     }
+
+    /**
+     * 根据订单状态查询订单数
+     */
+    @Override
+    public Long getOrderCountByStatus(Integer status) {
+        return lambdaQuery()
+                .eq(Orders::getStatus, status)
+                .count();
+    }
 }

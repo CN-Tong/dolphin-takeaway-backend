@@ -1,6 +1,7 @@
 package com.tong.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
@@ -48,18 +49,22 @@ public class ReportServiceImpl implements ReportService {
         // 放入turnoverReportVO
         turnoverReportVO.setDateList(dateStr);
         // 定义集合存放每天的营业额
-        List<Long> turnoverList = new ArrayList<>();
+        List<Double> turnoverList = new ArrayList<>();
         // 查询date对应的营业额数据，即状态为已完成的订单数
         dateList.forEach(localDate -> {
             LocalDateTime localDateBeginTime = LocalDateTime.of(localDate, LocalTime.MIN);
             LocalDateTime localDateEndTime = LocalDateTime.of(localDate, LocalTime.MAX);
-            Long turnover = orderService.lambdaQuery()
+            List<Orders> ordersList = orderService.lambdaQuery()
                     .eq(Orders::getStatus, Orders.COMPLETED)
                     .ge(Orders::getOrderTime, localDateBeginTime)
                     .le(Orders::getOrderTime, localDateEndTime)
-                    .count();
-            turnover = turnover == null ? 0 : turnover;
-            turnoverList.add(turnover);
+                    .list();
+            if (CollUtil.isEmpty(ordersList)) {
+                turnoverList.add(0.0);
+            } else {
+                Double turnover = ordersList.stream().mapToDouble(orders -> orders.getAmount().doubleValue()).sum();
+                turnoverList.add(turnover);
+            }
         });
         // List转String
         String turnoverStr = StringUtils.join(turnoverList, ',');
@@ -140,7 +145,7 @@ public class ReportServiceImpl implements ReportService {
         // 计算订单总数和有效订单总数
         Long totalOrdersCount = totalOrdersList.stream().reduce(Long::sum).get();
         Long validOrdersCount = validOrdersList.stream().reduce(Long::sum).get();
-        if(totalOrdersCount != 0){
+        if (totalOrdersCount != 0) {
             // 计算订单完成率
             Double orderCompletionRate = validOrdersCount.doubleValue() / totalOrdersCount;
             orderReportVO.setOrderCompletionRate(orderCompletionRate);

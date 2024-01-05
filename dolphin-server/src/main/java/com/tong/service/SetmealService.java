@@ -26,4 +26,6 @@ public interface SetmealService extends IService<Setmeal> {
     PageResult pageQuery(SetmealPageQueryDTO setmealPageQueryDTO);
 
     void startOrStop(Integer status, Long id);
+
+    Long getDishCountByStatus(Integer status);
 }

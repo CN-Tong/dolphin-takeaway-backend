@@ -182,4 +182,14 @@ public class DishServiceImpl extends ServiceImpl<DishMapper, Dish> implements Di
                 .list();
         return dishList;
     }
+
+    /**
+     * 根据菜品状态查询菜品数量
+     */
+    @Override
+    public Long getDishCountByStatus(Integer status) {
+        return lambdaQuery()
+                .eq(Dish::getStatus, status)
+                .count();
+    }
 }
