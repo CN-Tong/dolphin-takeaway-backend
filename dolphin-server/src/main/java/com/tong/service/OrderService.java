@@ -41,4 +41,6 @@ public interface OrderService extends IService<Orders> {
     OrderPaymentVO payment(OrdersPaymentDTO ordersPaymentDTO);
 
     List<Orders> getByStatusAndOrderTimeLt(Integer status, LocalDateTime orderTime);
+
+    void reminderById(Long id);
 }

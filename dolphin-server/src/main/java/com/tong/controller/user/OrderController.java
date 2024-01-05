@@ -52,7 +52,7 @@ public class OrderController {
 
     @PutMapping("/cancel/{id}")
     @ApiOperation("取消订单")
-    public Result cancel(@PathVariable Long id){
+    public Result cancel(@PathVariable Long id) {
         log.info("根据id取消订单，id：{}", id);
         orderService.cancelById(id);
         return Result.success();
@@ -60,7 +60,7 @@ public class OrderController {
 
     @PostMapping("/repetition/{id}")
     @ApiOperation("再来一单")
-    public Result repetition(@PathVariable Long id){
+    public Result repetition(@PathVariable Long id) {
         log.info("再来一单，id：{}", id);
         orderService.repetitionById(id);
         return Result.success();
@@ -68,9 +68,17 @@ public class OrderController {
 
     @PutMapping("/payment")
     @ApiOperation("订单支付")
-    public Result<OrderPaymentVO> payment(@RequestBody OrdersPaymentDTO ordersPaymentDTO){
+    public Result<OrderPaymentVO> payment(@RequestBody OrdersPaymentDTO ordersPaymentDTO) {
         log.info("订单支付，参数：{}", ordersPaymentDTO);
         OrderPaymentVO orderPaymentVO = orderService.payment(ordersPaymentDTO);
         return Result.success(orderPaymentVO);
+    }
+
+    @GetMapping("/reminder/{id}")
+    @ApiOperation("催单")
+    public Result reminder(@PathVariable Long id) {
+        log.info("催单，id：{}", id);
+        orderService.reminderById(id);
+        return Result.success();
     }
 }

@@ -279,7 +279,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Orders> implement
                 .one();
         Long ordersId = orders.getId();
         map.put("orderId", ordersId);
-        map.put("content", "订单号："+orderNumber);
+        map.put("content", "订单号：" + orderNumber);
         // 对象转JSON
         String json = JSON.toJSONString(map);
         // 向浏览器推送
@@ -294,5 +294,23 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Orders> implement
                 .lt(Orders::getOrderTime, orderTime)
                 .list();
         return ordersList;
+    }
+
+    @Override
+    public void reminderById(Long id) {
+        // 校验订单是否存在
+        Orders orders = getById(id);
+        if (orders == null) {
+            throw new OrderBusinessException(MessageConstant.ORDER_NOT_FOUND);
+        }
+        // 通过WebSocket向浏览器推送消息 type orderId content
+        Map map = new HashMap();
+        map.put("type", 2);
+        map.put("orderId", id);
+        map.put("content", "订单号：" + orders.getNumber());
+        // 对象转JSON
+        String json = JSON.toJSONString(map);
+        // 向浏览器推送
+        webSocketServer.sendToAllClient(json);
     }
 }
