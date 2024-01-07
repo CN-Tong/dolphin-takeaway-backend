@@ -3,7 +3,7 @@ server:
 
 spring:
   profiles:
-    active: dev
+    active: prod
   main:
     allow-circular-references: true
   datasource:
@@ -32,8 +32,8 @@ mybatis-plus:
 logging:
   level:
     com:
-      sky:
-        mapper: debug
+      tong:
+        mapper: info
         service: info
         controller: info
 
