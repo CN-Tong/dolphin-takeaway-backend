@@ -9,6 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>dolphin-pojo</artifactId>
+    <packaging>jar</packaging>
     <dependencies>
         <dependency>
             <groupId>org.projectlombok</groupId>
